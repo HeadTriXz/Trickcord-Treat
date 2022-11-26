@@ -1,0 +1,24 @@
+{
+  "name": "trick-cord-treat",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/typings",
+  "type": "module",
+  "author": "HeadTriXz",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^18.7.23",
+    "@typescript-eslint/eslint-plugin": "^5.39.0"
+  },
+  "dependencies": {
+    "eris": "github:DonovanDMC/eris#f6d0bbf669ca5bbe1577a107c0570c149674cd8e",
+    "ioredis": "^5.2.3",
+    "pg": "^8.8.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.10",
+    "winston": "^3.8.2",
+    "winston-daily-rotate-file": "^4.7.1",
+    "winston-transport-sentry-node": "^2.6.0"
+  }
+}
