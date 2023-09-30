@@ -1,4 +1,4 @@
-import type { ClientEvents } from "eris";
+import type { ClientEvents } from "@projectdysnomia/dysnomia";
 import type { Client } from "../Client.js";
 
 export type Emittable = keyof ClientEvents;

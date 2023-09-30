@@ -3,7 +3,7 @@ import type {
     ComponentInteractionSelectMenuData,
     Member,
     Message
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../../structures/Client.js";
 
 import config from "../../config.js";
@@ -11,7 +11,7 @@ import items from "../../items.json" assert { type: "json" };
 
 import { getRarityString, ItemRarity } from "../../utils/trickOrTreat.js";
 import { resolvers } from "../../structures/commands/options.js";
-import { Constants } from "eris";
+import { Constants } from "@projectdysnomia/dysnomia";
 import { SlashCommand } from "../../structures/commands/SlashCommand.js";
 
 const OPTIONS = [
@@ -66,11 +66,11 @@ export default class extends SlashCommand {
         const content = this.#getContent(member, ItemRarity.COMMON, inventory);
         const message = await interaction.createFollowup(content);
 
-        await this.#awaitResponse(message, member, inventory, interaction.user.id);
+        await this.#awaitResponse(message, member, inventory, interaction.user!.id);
     }
 
     async #awaitResponse(message: Message, member: Member, inventory: number[], authorID: string): Promise<void> {
-        const [response] = await message.awaitInteractions((i) => i.data.custom_id === "rarity" && i.user.id === authorID, {
+        const [response] = await message.awaitInteractions((i) => i.data.custom_id === "rarity" && i.user!.id === authorID, {
             maxMatches: 1,
             time: 900000
         });

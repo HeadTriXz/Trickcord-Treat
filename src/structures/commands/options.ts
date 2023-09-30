@@ -2,8 +2,8 @@ import type {
     ApplicationCommandOptionChoices,
     AutocompleteInteraction,
     ChannelTypes
-} from "eris";
-import { Constants } from "eris";
+} from "@projectdysnomia/dysnomia";
+import { Constants } from "@projectdysnomia/dysnomia";
 
 
 // TYPES
@@ -150,7 +150,7 @@ export function convertToResolver<
     T extends ApplicationCommandOptionType = ApplicationCommandOptionType
 >(type: T, isMember?: boolean) {
     return (options: ApplicationCommandOption<T>): ApplicationCommandOptionsRaw<T> => {
-        // Eris' types are not made for this.
+        // Dysnomia' types are not made for this.
         const option: any = {
             description: options.description,
             required: options.required,

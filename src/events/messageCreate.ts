@@ -1,6 +1,7 @@
-import type {
-    Message
-} from "eris";
+import {
+    Constants,
+    type Message
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../structures/Client.js";
 
 import config from "../config.js";
@@ -8,7 +9,15 @@ import items from "../items.json" assert { type: "json" };
 import monsters from "../monsters.json" assert { type: "json" };
 
 import { Event } from "../structures/events/Event.js";
-import { ItemRarity } from "../utils/trickOrTreat.js";
+import { ItemRarity, getFooter, getRarityString } from "../utils/trickOrTreat.js";
+
+/**
+ * The type of response the user gave.
+ */
+enum OpenDoorType {
+    TRICK = "trick",
+    TREAT = "treat"
+}
 
 /**
  * Handles the messageCreate event.
@@ -20,29 +29,6 @@ export default class extends Event {
      */
     constructor(client: Client) {
         super(client, "messageCreate");
-        setInterval(this.checkMonsters.bind(this), 1000);
-    }
-
-    /**
-     * Checks if the monster has been around for longer than the timeout, and if so, it removes the
-     * monster and updates the message.
-     */
-    async checkMonsters(): Promise<void> {
-        for (const [key, value] of this.client.monsters) {
-            const settings = await this.client.config.getOrCreate(key);
-            if (Date.now() - value.created_at < settings.timeout * 1000) {
-                continue;
-            }
-
-            this.client.monsters.delete(key);
-            await this.client.editMessage(value.channel_id, value.message_id, {
-                embeds: [{
-                    title: "The trick-or-treater disappeared...",
-                    description: "No one noticed them and they left :(",
-                    color: config.defaultColor
-                }]
-            });
-        }
     }
 
     /**
@@ -73,17 +59,28 @@ export default class extends Event {
                 throw new Error(`Couldn't find monster with ID "${item.parent_id}"`);
             }
 
-            const commandName = Math.random() < 0.5 ? "trick" : "treat";
-            const command = this.client.commands.find((c) => c.name === commandName);
-            if (!command) {
-                throw new Error(`Couldn't find a command for "${commandName}"`);
-            }
-
-            const commandStr = `</${commandName}:${command.id || 0}>`;
+            const requiredType = Math.random() < 0.5 ? OpenDoorType.TRICK : OpenDoorType.TREAT;
             const msg = await message.channel.createMessage({
+                components: [{
+                    components: [
+                        {
+                            type: Constants.ComponentTypes.BUTTON,
+                            style: Constants.ButtonStyles.SECONDARY,
+                            label: "Trick",
+                            custom_id: OpenDoorType.TRICK
+                        },
+                        {
+                            type: Constants.ComponentTypes.BUTTON,
+                            style: Constants.ButtonStyles.SECONDARY,
+                            label: "Treat",
+                            custom_id: OpenDoorType.TREAT
+                        }
+                    ],
+                    type: Constants.ComponentTypes.ACTION_ROW
+                }],
                 embeds: [{
                     title: "A trick-or-treater has stopped by!",
-                    description: "Open the door and greet them with " + commandStr,
+                    description: `Open the door and greet them with \`${requiredType}\``,
                     image: {
                         url: monster.image_url
                     },
@@ -91,13 +88,77 @@ export default class extends Event {
                 }]
             });
 
-            this.client.monsters.set(message.guildID, {
-                channel_id: msg.channel.id,
-                item_id: item.id,
-                message_id: msg.id,
-                required_cmd: commandName,
-                created_at: Date.now()
+            const [response] = await msg.awaitInteractions((i) => i.user!.id === message.author.id, {
+                maxMatches: 1,
+                time: settings.timeout * 1000
             });
+
+            if (response === undefined) {
+                await this.client.editMessage(message.channel.id, msg.id, {
+                    components: [],
+                    embeds: [{
+                        title: "The trick-or-treater disappeared...",
+                        description: "No one noticed them and they left :(",
+                        color: config.defaultColor
+                    }]
+                });
+
+                return;
+            }
+
+            if (response.data.custom_id !== requiredType) {
+                return response.editParent({
+                    components: [],
+                    embeds: [{
+                        title: "Oh no!",
+                        description: "You used the wrong command and seemed to scare them off.",
+                        color: config.defaultColor
+                    }]
+                });
+            }
+
+            const isDuplicate = await this.client.inventory.has(message.guildID, message.author.id, item.id);
+            await response.editParent({
+                components: [],
+                embeds: [{
+                    title: "Happy Halloween!",
+                    description: `As a thank you for your kindness, they give ${response.user!.mention} one **${item.name}**`,
+                    image: {
+                        url: monster.image_url
+                    },
+                    footer: {
+                        text: isDuplicate
+                            ? "You already had this item!"
+                            : `This item is ${getRarityString(item.rarity)}. ${getFooter(item.rarity)} It's been added to your inventory`
+                    },
+                    color: config.defaultColor
+                }]
+            });
+
+            if (!isDuplicate) {
+                const oldTop = await this.client.inventory.getTop(message.guildID);
+                await this.client.inventory.add(message.guildID, message.author.id, item.id);
+
+                if (oldTop[0].count !== items.length) {
+                    const newTop = await this.client.inventory.getTop(message.guildID);
+
+                    if (oldTop[0].user_id !== newTop[0].user_id) {
+                        await this.client.removeGuildMemberRole(message.guildID, oldTop[0].user_id, settings.role_id)
+                            .catch(() => void 0);
+
+                        await this.client.addGuildMemberRole(message.guildID, message.author.id, settings.role_id)
+                            .catch(() => void 0);
+                    }
+                }
+
+                const count = await this.client.inventory.getCount(message.guildID, message.author.id);
+                if (count === items.length) {
+                    await response.createFollowup({
+                        content: `${config.emotes.check} Congratulations! You have collected all items.`,
+                        flags: 1 << 6
+                    });
+                }
+            }
         }
     }
 

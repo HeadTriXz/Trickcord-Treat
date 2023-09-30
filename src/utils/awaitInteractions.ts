@@ -1,7 +1,7 @@
-import type { AnyInteractionGateway, ComponentInteraction } from "eris";
-import type Eris from "eris";
+import type { AnyInteractionGateway, ComponentInteraction } from "@projectdysnomia/dysnomia";
+import type Dysnomia from "@projectdysnomia/dysnomia";
 
-import { Message } from "eris";
+import { Message } from "@projectdysnomia/dysnomia";
 import { EventEmitter } from "events";
 
 /**
@@ -113,11 +113,11 @@ Message.prototype.awaitInteractions = function(
     return new Promise((resolve) => collector.on("end", resolve));
 };
 
-declare module "eris" {
+declare module "@projectdysnomia/dysnomia" {
     interface Message {
         awaitInteractions(
-            filter: Filter<Eris.ComponentInteraction>,
+            filter: Filter<Dysnomia.ComponentInteraction>,
             options: CollectorOptions
-        ): Promise<Eris.ComponentInteraction[]>;
+        ): Promise<Dysnomia.ComponentInteraction[]>;
     }
 }

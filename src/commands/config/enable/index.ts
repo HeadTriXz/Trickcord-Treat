@@ -1,13 +1,13 @@
 import type {
     CommandInteraction,
     GuildTextableChannel
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../../../structures/Client.js";
 
 import config from "../../../config.js";
 
 import { resolvers } from "../../../structures/commands/options.js";
-import { Constants } from "eris";
+import { Constants } from "@projectdysnomia/dysnomia";
 import { SlashCommand } from "../../../structures/commands/SlashCommand.js";
 
 export default class extends SlashCommand {

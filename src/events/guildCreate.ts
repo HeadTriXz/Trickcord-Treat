@@ -1,4 +1,4 @@
-import type { Guild } from "eris";
+import type { Guild } from "@projectdysnomia/dysnomia";
 import type { Client } from "../structures/Client.js";
 
 import { Event } from "../structures/events/Event.js";

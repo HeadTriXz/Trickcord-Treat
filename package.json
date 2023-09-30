@@ -12,7 +12,7 @@
     "@typescript-eslint/eslint-plugin": "^5.39.0"
   },
   "dependencies": {
-    "eris": "github:DonovanDMC/eris#f6d0bbf669ca5bbe1577a107c0570c149674cd8e",
+    "@projectdysnomia/dysnomia": "^0.1.3",
     "ioredis": "^5.2.3",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",

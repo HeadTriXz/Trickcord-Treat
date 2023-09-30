@@ -1,4 +1,4 @@
-import type { CommandInteraction } from "eris";
+import type { CommandInteraction } from "@projectdysnomia/dysnomia";
 import type { Client } from "../../structures/Client.js";
 
 import { SlashCommand } from "../../structures/commands/SlashCommand.js";

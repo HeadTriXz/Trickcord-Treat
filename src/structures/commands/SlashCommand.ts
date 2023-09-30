@@ -1,7 +1,7 @@
 import type {
     ChatInputApplicationCommandStructure,
     CommandInteraction
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type {
     ApplicationCommandOptionsRaw,
     ApplicationCommandOptionsResolved
@@ -9,7 +9,7 @@ import type {
 import type { Client } from "../Client.js";
 import type { Collection } from "../../utils/Collection.js";
 
-import { Constants } from "eris";
+import { Constants } from "@projectdysnomia/dysnomia";
 
 type Permissions = keyof Constants["Permissions"];
 

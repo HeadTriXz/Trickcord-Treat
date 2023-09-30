@@ -1,5 +1,5 @@
 import type { Client } from "../Client.js";
-import type { ClientEvents } from "eris";
+import type { ClientEvents } from "@projectdysnomia/dysnomia";
 import type { Event } from "./Event.js";
 
 import fs from "fs/promises";

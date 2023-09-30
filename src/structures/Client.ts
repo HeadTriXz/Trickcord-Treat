@@ -1,8 +1,8 @@
-import type { ClientOptions } from "eris";
+import type { ClientOptions } from "@projectdysnomia/dysnomia";
 import type { LoggerOptions } from "../utils/Logger.js";
 
 import { AppDataSource } from "../utils/datasource.js";
-import { Client as Eris } from "eris";
+import { Client as Dysnomia } from "@projectdysnomia/dysnomia";
 import { CommandManager } from "./commands/CommandManager.js";
 import { ConfigController } from "../database/controllers/ConfigController.js";
 import { EventManager } from "./events/EventManager.js";
@@ -19,29 +19,9 @@ interface ExtendedClientOptions extends ClientOptions {
 }
 
 /**
- * Represents the data of a spawned monster.
- */
-export interface SpawnData {
-    /** The ID of the channel the monster has spawned in. */
-    channel_id: string;
-
-    /** The ID of the item. */
-    item_id: number;
-
-    /** The ID of the message. */
-    message_id: string;
-
-    /** The required command. */
-    required_cmd: "trick" | "treat";
-
-    /** When the monster spawned. */
-    created_at: number;
-}
-
-/**
  * The main class used to interact with the Discord API.
  */
-export class Client extends Eris {
+export class Client extends Dysnomia {
     /** Manages message commands and cooldowns. */
     commands = new CommandManager(this);
 
@@ -59,9 +39,6 @@ export class Client extends Eris {
 
     /** A wrapper around Winston that allows you to log to the console, files, and Sentry. */
     logger: Logger;
-
-    /** Collection with the spawn data of the monsters. */
-    monsters = new Collection<SpawnData>();
 
     /** Collection with the dates of when the last monster has appeared. */
     lastMonsters = new Collection<number>();

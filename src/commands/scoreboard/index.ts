@@ -5,11 +5,11 @@ import type {
     ComponentInteraction,
     GuildTextableChannel,
     Message
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../../structures/Client.js";
 
 import config from "../../config.js";
-import { Constants } from "eris";
+import { Constants } from "@projectdysnomia/dysnomia";
 import { SlashCommand } from "../../structures/commands/SlashCommand.js";
 
 // CONSTANTS
@@ -17,8 +17,8 @@ const INTERACTION_FILTER = (interaction: ComponentInteraction) =>
     interaction.data.custom_id === "next" || interaction.data.custom_id === "previous";
 
 // EMOTES
-const NEXT_ID = "991322330498334770";
-const PREVIOUS_ID = "991322332004110367";
+const NEXT_ID = "1124406938738905098";
+const PREVIOUS_ID = "1124406936188768357";
 const PAGE_SIZE = 10;
 
 type ContentFunction<T> = (values: T[], page: number) => AdvancedMessageContent | Promise<AdvancedMessageContent>;
@@ -38,6 +38,15 @@ export default class extends SlashCommand {
         }
 
         const scoreboard = await this.client.inventory.getTop(interaction.guildID);
+        if (scoreboard.length === 0) {
+            return interaction.createMessage({
+                embeds: [{
+                    title: `🎃 Scoreboard | ${interaction.channel.guild.name} 🎃`,
+                    description: "No one has collected any items yet.",
+                    color: config.defaultColor
+                }]
+            });
+        }
 
         await interaction.acknowledge();
         await this.#initPage(interaction, scoreboard, PAGE_SIZE, (values, page) => ({

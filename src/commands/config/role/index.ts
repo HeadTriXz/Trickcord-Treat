@@ -1,4 +1,4 @@
-import type { CommandInteraction, GuildTextableChannel } from "eris";
+import type { CommandInteraction, GuildTextableChannel } from "@projectdysnomia/dysnomia";
 import type { Client } from "../../../structures/Client.js";
 
 import config from "../../../config.js";

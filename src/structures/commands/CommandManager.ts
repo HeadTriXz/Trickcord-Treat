@@ -2,7 +2,7 @@ import type {
     AutocompleteInteraction,
     ChatInputApplicationCommandStructure,
     CommandInteraction
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../Client.js";
 import type { SlashCommand } from "./SlashCommand.js";
 

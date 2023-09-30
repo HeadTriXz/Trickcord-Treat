@@ -3,12 +3,12 @@ import type {
     CommandInteractionResolvedData,
     GuildTextableChannel,
     InteractionDataOptions
-} from "eris";
+} from "@projectdysnomia/dysnomia";
 import type { Client } from "../structures/Client.js";
 import type { CommandInteractionOption } from "../structures/commands/CommandManager.js";
 import type { SlashCommand } from "../structures/commands/SlashCommand.js";
 
-import { Constants } from "eris";
+import { Constants } from "@projectdysnomia/dysnomia";
 import { Event } from "../structures/events/Event.js";
 
 type Permissions = keyof Constants["Permissions"];
@@ -36,7 +36,7 @@ export default class extends Event {
             if (interaction.guildID) {
                 if (command.botPermissions) {
                     const perms = this.#missingPermissions(
-                        <GuildTextableChannel>interaction.channel, interaction.user.id, command.botPermissions);
+                        <GuildTextableChannel>interaction.channel, interaction.user!.id, command.botPermissions);
 
                     if (perms.length) {
                         return void interaction.createFollowup(`I am missing the permission(s) \`${perms.join("`, `")}\``);
@@ -144,10 +144,6 @@ export default class extends Event {
                     result[option.name] = resolved?.users?.get(option.value)
                         ?? resolved?.members?.get(option.value)
                         ?? resolved?.roles?.get(option.value);
-                    break;
-
-                case Constants.ApplicationCommandOptionTypes["ATTACHMENT"]:
-                    result[option.name] = resolved?.attachments?.get(option.value);
                     break;
 
                 case Constants.ApplicationCommandOptionTypes["SUB_COMMAND"]:

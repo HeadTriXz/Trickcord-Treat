@@ -14,14 +14,12 @@ const client = new Client(process.env.TOKEN, {
     }
 });
 
-client.on("ready", async () => {
+client.on("ready", () => {
     client.logger.info("Client", `Successfully logged in as ${client.user.username}#${client.user.discriminator}`);
 });
 
 client.on("error", (error: Error) => {
-    client.logger.error("Eris", error);
+    client.logger.error("Dysnomia", error);
 });
 
-client.connect().catch((error: Error) => {
-    client.logger.error("Client", error);
-});
+await client.connect();
