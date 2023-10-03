@@ -139,6 +139,13 @@ export default class extends Event {
                 const oldTop = await this.client.inventory.getTop(message.guildID);
                 await this.client.inventory.add(message.guildID, message.author.id, item.id);
 
+                if (oldTop.length === 0) {
+                    await this.client.addGuildMemberRole(message.guildID, message.author.id, settings.role_id)
+                        .catch(() => void 0);
+
+                    return;
+                }
+
                 if (oldTop[0].count !== items.length) {
                     const newTop = await this.client.inventory.getTop(message.guildID);
 
