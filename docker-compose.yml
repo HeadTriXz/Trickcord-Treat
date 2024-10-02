@@ -1,0 +1,28 @@
+name: trickcord-treat
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    restart: always
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
