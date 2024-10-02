@@ -11,9 +11,9 @@ export interface CurrentMonster {
     channelID: string;
 
     /**
-     * The date when the monster spawned.
+     * When the monster should disappear.
      */
-    createdAt: number;
+    expiresAt: number;
 
     /**
      * The ID of the monster.

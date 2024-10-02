@@ -56,7 +56,7 @@ export default class extends Event<MainModule> {
             return;
         }
 
-        await this.spawnMonster(message.guild_id, message.channel_id);
+        await this.spawnMonster(message.guild_id, message.channel_id, settings.timeout);
     }
 
     /**
@@ -64,8 +64,9 @@ export default class extends Event<MainModule> {
      *
      * @param guildID The ID of the guild.
      * @param channelID The ID of the channel.
+     * @param timeout The timeout for the monster (in seconds).
      */
-    async spawnMonster(guildID: string, channelID: string): Promise<void> {
+    async spawnMonster(guildID: string, channelID: string, timeout: number): Promise<void> {
         this.module.lastMonsters.set(guildID, Date.now());
 
         const monster = monsters[Math.floor(Math.random() * monsters.length)];
@@ -96,7 +97,7 @@ export default class extends Event<MainModule> {
 
         this.module.currentMonsters.set(guildID, {
             channelID: channelID,
-            createdAt: Date.now(),
+            expiresAt: Date.now() + (timeout * 1000),
             messageID: message.id,
             monsterID: monster.id,
             type: responseType

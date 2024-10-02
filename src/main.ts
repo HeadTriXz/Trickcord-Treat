@@ -22,6 +22,7 @@ import { GuildSettingsRepository } from "./database/GuildSettingsRepository.js";
 import { InventoryItemRepository } from "./database/InventoryItemRepository.js";
 import { REST } from "@discordjs/rest";
 import { WebSocketManager } from "@discordjs/ws";
+import config from "./config.js";
 
 /**
  * Options for an {@link Application}.
@@ -187,6 +188,8 @@ export class MainModule extends ConfigurableModule<MainModule> implements Module
                 })
             }
         });
+
+        setInterval(() => this.#checkExpired(), 1000);
     }
 
     /**
@@ -196,5 +199,26 @@ export class MainModule extends ConfigurableModule<MainModule> implements Module
      */
     isEnabled(): boolean {
         return true;
+    }
+
+    /**
+     * Checks if the monsters have expired and removes them if they have.
+     */
+    async #checkExpired(): Promise<void> {
+        for (const [guildID, monster] of this.currentMonsters) {
+            if (monster.expiresAt > Date.now()) {
+                continue;
+            }
+
+            this.currentMonsters.delete(guildID);
+            await this.client.api.channels.editMessage(monster.channelID, monster.messageID, {
+                attachments: [],
+                embeds: [{
+                    title: "The trick-or-treater disappeared...",
+                    description: "No one noticed them and they left :(",
+                    color: config.defaultColor
+                }]
+            });
+        }
     }
 }
