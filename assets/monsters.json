@@ -1,0 +1,202 @@
+[
+    {
+        "id": 0,
+        "name": "Alien",
+        "image_path": "assets/images/Alien.png"
+    },
+    {
+        "id": 1,
+        "name": "Bat",
+        "image_path": "assets/images/Bat.png"
+    },
+    {
+        "id": 2,
+        "name": "Cat",
+        "image_path": "assets/images/Cat.png"
+    },
+    {
+        "id": 3,
+        "name": "Centaur",
+        "image_path": "assets/images/Centaur.png"
+    },
+    {
+        "id": 4,
+        "name": "Chupacabra",
+        "image_path": "assets/images/Chupacabra.png"
+    },
+    {
+        "id": 5,
+        "name": "Clown",
+        "image_path": "assets/images/Clown.png"
+    },
+    {
+        "id": 6,
+        "name": "Crow",
+        "image_path": "assets/images/Crow.png"
+    },
+    {
+        "id": 7,
+        "name": "Demon",
+        "image_path": "assets/images/Demon.png"
+    },
+    {
+        "id": 8,
+        "name": "Fairy",
+        "image_path": "assets/images/Fairy.png"
+    },
+    {
+        "id": 9,
+        "name": "Frog",
+        "image_path": "assets/images/Frog.png"
+    },
+    {
+        "id": 10,
+        "name": "Ghost",
+        "image_path": "assets/images/Ghost.png"
+    },
+    {
+        "id": 11,
+        "name": "Goblin",
+        "image_path": "assets/images/Goblin.png"
+    },
+    {
+        "id": 12,
+        "name": "Gremlin",
+        "image_path": "assets/images/Gremlin.png"
+    },
+    {
+        "id": 13,
+        "name": "Haunted Tree",
+        "image_path": "assets/images/Haunted_Tree.png"
+    },
+    {
+        "id": 14,
+        "name": "Jack O Lantern",
+        "image_path": "assets/images/Jackolantern.png"
+    },
+    {
+        "id": 15,
+        "name": "Knight",
+        "image_path": "assets/images/Knight.png"
+    },
+    {
+        "id": 16,
+        "name": "Man Shark",
+        "image_path": "assets/images/Man_shark.png"
+    },
+    {
+        "id": 17,
+        "name": "Mothman",
+        "image_path": "assets/images/Mothman.png"
+    },
+    {
+        "id": 18,
+        "name": "Mummy",
+        "image_path": "assets/images/Mummy.png"
+    },
+    {
+        "id": 19,
+        "name": "Nice Pumpkins",
+        "image_path": "assets/images/Nice_Pumpkins.png"
+    },
+    {
+        "id": 20,
+        "name": "Orc",
+        "image_path": "assets/images/Orc.png"
+    },
+    {
+        "id": 21,
+        "name": "Pirate",
+        "image_path": "assets/images/Pirate.png"
+    },
+    {
+        "id": 22,
+        "name": "Plague Doctor",
+        "image_path": "assets/images/Plague_Doctor.png"
+    },
+    {
+        "id": 23,
+        "name": "Rat",
+        "image_path": "assets/images/Rat.png"
+    },
+    {
+        "id": 24,
+        "name": "Reaper",
+        "image_path": "assets/images/Reaper.png"
+    },
+    {
+        "id": 25,
+        "name": "Robot",
+        "image_path": "assets/images/Robot.png"
+    },
+    {
+        "id": 26,
+        "name": "Scarecrow",
+        "image_path": "assets/images/Scarecrow.png"
+    },
+    {
+        "id": 27,
+        "name": "Scientist",
+        "image_path": "assets/images/Scientist.png"
+    },
+    {
+        "id": 28,
+        "name": "Skeleton",
+        "image_path": "assets/images/Skeleton.png"
+    },
+    {
+        "id": 29,
+        "name": "Slime",
+        "image_path": "assets/images/Slime.png"
+    },
+    {
+        "id": 30,
+        "name": "Snake",
+        "image_path": "assets/images/Snake.png"
+    },
+    {
+        "id": 31,
+        "name": "Spider",
+        "image_path": "assets/images/Spider.png"
+    },
+    {
+        "id": 32,
+        "name": "Teddy Bear",
+        "image_path": "assets/images/Teddy_Bear.png"
+    },
+    {
+        "id": 33,
+        "name": "Vampire",
+        "image_path": "assets/images/Vampire.png"
+    },
+    {
+        "id": 34,
+        "name": "Werewolf",
+        "image_path": "assets/images/Werewolf.png"
+    },
+    {
+        "id": 35,
+        "name": "Witch",
+        "image_path": "assets/images/Witch.png"
+    },
+    {
+        "id": 36,
+        "name": "Wumpus Dino",
+        "image_path": "assets/images/Wumpus_Dino.png"
+    },
+    {
+        "id": 37,
+        "name": "Wumpus Wumpus",
+        "image_path": "assets/images/Wumpus_Wumpus.png"
+    },
+    {
+        "id": 38,
+        "name": "Wumpus Yeti",
+        "image_path": "assets/images/Wumpus_Yeti.png"
+    },
+    {
+        "id": 39,
+        "name": "Zombie",
+        "image_path": "assets/images/Zombie.png"
+    }
+]

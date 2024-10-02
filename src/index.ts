@@ -1,25 +1,44 @@
-import "./utils/awaitInteractions.js";
-import "./utils/dotenv.js";
+import { Application, MainModule } from "./main.js";
+import { GatewayDispatchEvents, GatewayIntentBits } from "@discordjs/core";
+import { Logger } from "@barry-bot/logger";
 
-import { Client } from "./structures/Client.js";
-
-if (!process.env.TOKEN) {
-    throw Error("No token given");
+// Check environment variables.
+if (process.env.DISCORD_CLIENT_ID === undefined) {
+    throw new Error("Missing environment variable: DISCORD_CLIENT_ID");
 }
 
-const client = new Client(process.env.TOKEN, {
-    logger: {
-        sentry: process.env.SENTRY_URL,
-        enableDebug: true
+if (process.env.DISCORD_TOKEN === undefined) {
+    throw new Error("Missing environment variable: DISCORD_TOKEN");
+}
+
+// Initialize the logger.
+const logger = new Logger({
+    environment: process.env.NODE_ENV,
+    sentry: {
+        dsn: process.env.SENTRY_DSN
     }
 });
 
-client.on("ready", () => {
-    client.logger.info("Client", `Successfully logged in as ${client.user.username}#${client.user.discriminator}`);
+// Initialize the application.
+const app = new Application({
+    discord: {
+        applicationID: process.env.DISCORD_CLIENT_ID,
+        intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages,
+        token: process.env.DISCORD_TOKEN
+    },
+    logger: logger,
+    modules: [MainModule]
 });
 
-client.on("error", (error: Error) => {
-    client.logger.error("Dysnomia", error);
+process.on("uncaughtException", (error) => {
+    logger.fatal(error);
 });
 
-await client.connect();
+// Initialize the application.
+app.on(GatewayDispatchEvents.Ready, ({ user }) => {
+    logger.info(`Successfully logged in as ${user.username}#${user.discriminator}`);
+});
+
+app.initialize().catch((error) => {
+    logger.fatal(error);
+});

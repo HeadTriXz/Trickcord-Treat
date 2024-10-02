@@ -1,24 +1,39 @@
 {
   "name": "trick-cord-treat",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/typings",
-  "type": "module",
+  "version": "2.0.0",
   "author": "HeadTriXz",
+  "repository": "HeadTriXz/Trickcord-Treat",
+  "description": "This is a Halloween-themed Discord bot that sends virtual trick-or-treaters to your server for a speed-based game.",
   "license": "MIT",
-  "description": "",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@10.5.0",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rimraf dist",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push --skip-generate",
+    "start": "dotenv -- node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
   "devDependencies": {
-    "@types/node": "^18.7.23",
-    "@typescript-eslint/eslint-plugin": "^5.39.0"
+    "@types/node": "^22.7.4",
+    "dotenv-cli": "^7.4.2",
+    "prisma": "^5.20.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
-    "@projectdysnomia/dysnomia": "^0.1.3",
-    "ioredis": "^5.2.3",
-    "pg": "^8.8.0",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.10",
-    "winston": "^3.8.2",
-    "winston-daily-rotate-file": "^4.7.1",
-    "winston-transport-sentry-node": "^2.6.0"
+    "@barry-bot/core": "^1.1.1",
+    "@barry-bot/logger": "^1.0.2",
+    "@discordjs/core": "^2.0.0",
+    "@discordjs/rest": "^2.4.0",
+    "@discordjs/ws": "^2.0.0",
+    "@prisma/client": "^5.20.0"
   }
 }
