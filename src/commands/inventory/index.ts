@@ -1,127 +1,136 @@
-import type {
-    CommandInteraction,
-    ComponentInteractionSelectMenuData,
-    Member,
-    Message
-} from "@projectdysnomia/dysnomia";
-import type { Client } from "../../structures/Client.js";
+import {
+    type APIInteractionResponseCallbackData,
+    type APIUser,
+    ComponentType,
+    InteractionContextType
+} from "@discordjs/core";
+import {
+    type ApplicationCommandInteraction,
+    ReplyableInteraction,
+    SlashCommand,
+    SlashCommandOptionBuilder,
+    getAvatarURL
+} from "@barry-bot/core";
+import type { MainModule } from "../../main.js";
+
+import { ItemRarity, getRarityString, getRarityTitle } from "../../utils/index.js";
 
 import config from "../../config.js";
-import items from "../../items.json" assert { type: "json" };
+import items from "../../../assets/items.json" with { type: "json" };
+import rarities from "./rarities.js";
 
-import { getRarityString, ItemRarity } from "../../utils/trickOrTreat.js";
-import { resolvers } from "../../structures/commands/options.js";
-import { Constants } from "@projectdysnomia/dysnomia";
-import { SlashCommand } from "../../structures/commands/SlashCommand.js";
+/**
+ * The options for the inventory command. 
+ */
+interface InventoryOptions {
+    /**
+     * The user to show the inventory for.
+     */
+    user: APIUser;
+}
 
-const OPTIONS = [
-    {
-        label: "Common",
-        value: "" + ItemRarity.COMMON,
-        emoji: {
-            id: config.emotes.common.id,
-            name: config.emotes.common.name
-        }
-    },
-    {
-        label: "Uncommon",
-        value: "" + ItemRarity.UNCOMMON,
-        emoji: {
-            id: config.emotes.uncommon.id,
-            name: config.emotes.uncommon.name
-        }
-    },
-    {
-        label: "Rare",
-        value: "" + ItemRarity.RARE,
-        emoji: {
-            id: config.emotes.rare.id,
-            name: config.emotes.rare.name
-        }
-    }
-];
-
-export default class extends SlashCommand {
-    constructor(client: Client) {
-        super(client, {
+/**
+ * Represents a slash command that shows the inventory of a user.
+ */
+export default class extends SlashCommand<MainModule> {
+    /**
+     * Represents a slash command that shows the inventory of a user.
+     *
+     * @param module The module the command belongs to.
+     */
+    constructor(module: MainModule) {
+        super(module, {
             name: "inventory",
             description: "Shows you all the collectibles you've gathered.",
-            guildOnly: true,
+            contexts: [InteractionContextType.Guild],
             options: {
-                member: resolvers.member({ description: "The member whose collectibles to show." })
+                user: SlashCommandOptionBuilder.user({
+                    description: "The user to show the inventory for."
+                })
             }
         });
     }
 
-    async execute(interaction: CommandInteraction, options: { member?: Member }): Promise<void> {
-        if (!interaction.guildID) {
+    /**
+     * Show the inventory of the specified user.
+     *
+     * @param interaction The interaction that triggered the command.
+     */
+    async execute(interaction: ApplicationCommandInteraction, options: InventoryOptions): Promise<void> {
+        if (!interaction.isInvokedInGuild()) {
             return;
         }
 
-        await interaction.acknowledge();
+        await interaction.defer();
 
-        const member = options.member ?? interaction.member!;
-        const inventory = await this.client.inventory.get(interaction.guildID, member.id);
+        const user = options.user ?? interaction.user;
+        const inventory = await this.module.inventory.get(interaction.guildID, user.id);
 
-        const content = this.#getContent(member, ItemRarity.COMMON, inventory);
-        const message = await interaction.createFollowup(content);
+        await interaction.createFollowupMessage(
+            this.#getContent(user, ItemRarity.Common, inventory)
+        );
 
-        await this.#awaitResponse(message, member, inventory, interaction.user!.id);
+        await this.#awaitResponse(interaction, user, inventory);
     }
 
-    async #awaitResponse(message: Message, member: Member, inventory: number[], authorID: string): Promise<void> {
-        const [response] = await message.awaitInteractions((i) => i.data.custom_id === "rarity" && i.user!.id === authorID, {
-            maxMatches: 1,
-            time: 900000
+    /**
+     * Awaits the response from the user to show the inventory for a different rarity.
+     *
+     * @param interaction The interaction that triggered the command.
+     * @param user The user to show the inventory for.
+     * @param inventory The inventory of the user.
+     */
+    async #awaitResponse(interaction: ReplyableInteraction, user: APIUser, inventory: number[]): Promise<void> {
+        const response = await interaction.awaitMessageComponent({
+            customIDs: ["rarity"],
         });
 
-        if (!response) {
-            return void message.edit({ components: [] }).catch(() => void 0);
+        if (!response?.data.isStringSelect()) {
+            await interaction.editOriginalMessage({ components: [] });
+            return;
         }
 
-        const rarity = Number((response.data as ComponentInteractionSelectMenuData).values[0]);
-        const content = this.#getContent(member, rarity, inventory);
+        const rarity = Number(response.data.values[0]);
+        const content = this.#getContent(user, rarity, inventory);
         await response.editParent(content);
 
-        return this.#awaitResponse(message, member, inventory, authorID);
+        return this.#awaitResponse(response, user, inventory);
     }
 
-    #getContent(member: Member, rarity: ItemRarity, inventory: number[]) {
-        const arr = items.filter((i) => inventory.includes(i.id) && i.rarity === rarity);
-        let description = `You own ${arr.length} ${getRarityString(rarity)} items!`;
-        if (arr.length > 0) {
-            description += `\n\n• ${arr.map((i) => i.name).join("\n• ")}`;
+    /**
+     * Returns the message content for the inventory.
+     *
+     * @param user The user to show the inventory for.
+     * @param rarity The rarity to show the inventory for.
+     * @param inventory The inventory of the user.
+     * @returns The message content for the inventory.
+     */
+    #getContent(user: APIUser, rarity: ItemRarity, inventory: number[]): APIInteractionResponseCallbackData {
+        const filtered = items.filter((i) => inventory.includes(i.id) && i.rarity === rarity);
+
+        let description = `You own ${filtered.length} ${getRarityString(rarity)} items!`;
+        if (filtered.length > 0) {
+            description += `\n\n• ${filtered.map((i) => i.name).join("\n• ")}`;
         }
 
         return {
             components: [{
-                type: Constants.ComponentTypes.ACTION_ROW,
+                type: ComponentType.ActionRow,
                 components: [{
-                    type: Constants.ComponentTypes.STRING_SELECT,
+                    type: ComponentType.StringSelect,
                     custom_id: "rarity",
                     placeholder: "Rarity",
-                    options: OPTIONS
+                    options: rarities
                 }]
             }],
             embeds: [{
-                title: `${this.#getTitle(rarity)} | ${member.username}'s Inventory`,
+                title: `${getRarityTitle(rarity)} | ${user.global_name}'s Inventory`,
                 thumbnail: {
-                    url: member.dynamicAvatarURL(undefined, 512)
+                    url: getAvatarURL(user, { size: 128 })
                 },
                 description: description,
                 color: config.defaultColor
             }]
         };
-    }
-
-    #getTitle(rarity: ItemRarity): string {
-        switch (rarity) {
-            case ItemRarity.COMMON:
-                return config.emotes.common + " Common";
-            case ItemRarity.UNCOMMON:
-                return config.emotes.uncommon + " Uncommon";
-            case ItemRarity.RARE:
-                return config.emotes.rare + " Rare";
-        }
     }
 }

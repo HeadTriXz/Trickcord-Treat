@@ -1,18 +1,25 @@
 /**
  * Utility class used to easily access emojis in the config.
  */
-class Emoji {
-    /** Whether the emoji is animated. */
-    readonly animated: boolean;
+export class Emoji {
+    /**
+     * Whether the emoji is animated.
+     */
+    animated: boolean;
 
-    /** The ID of the emoji. */
-    readonly id: string;
+    /**
+     * The ID of the emoji.
+     */
+    id: string;
 
-    /** The name of the emoji. */
-    readonly name: string;
+    /**
+     * The name of the emoji.
+     */
+    name: string;
 
     /**
      * Utility class used to easily access emojis in the config.
+     *
      * @param name The name of the emoji.
      * @param id The ID of the emoji.
      * @param animated Whether the emoji is animated.
@@ -24,22 +31,40 @@ class Emoji {
     }
 
     /**
+     * The URL of the image of the emoji.
+     */
+    get imageURL(): string {
+        return `https://cdn.discordapp.com/emojis/${this.id}.webp`;
+    }
+
+    /**
      * Returns the formatted emoji to use in Discord.
      */
-    toString() {
+    toString(): string {
         return `<${this.animated ? "a" : ""}:${this.name}:${this.id}>`;
     }
 }
 
 export default {
-    developers: ["257522665441460225"],
     emotes: {
-        check: new Emoji("check", "1004436175307669659"),
-        common: new Emoji("common", "1026578109203501136"),
-        error: new Emoji("error", "1004436176859578510"),
-        ping: new Emoji("ping", "1004496976060108891"),
-        rare: new Emoji("rare", "1026578106347163739"),
-        uncommon: new Emoji("uncommon", "1026578107374772456")
+        // General
+        check: new Emoji("check", "1290748295911575614"),
+        error: new Emoji("error", "1290748346906181722"),
+
+        // Rarity
+        common: new Emoji("common", "1290749828602527857"),
+        rare: new Emoji("rare", "1290749876409339995"),
+        uncommon: new Emoji("uncommon", "1290749854548496466"),
+
+        // Pagination
+        next: new Emoji("next", "1290772114735108259"),
+        previous: new Emoji("previous", "1290772125807804506"),
+
+        // Config
+        add: new Emoji("add", "1290747913227603998"),
+        channel: new Emoji("channel", "1290747932705816576"),
+        role: new Emoji("role", "1290748051379716097"),
+        unknown: new Emoji("unknown", "1290748070803280047")
     },
     defaultColor: 0x5865F2
 };

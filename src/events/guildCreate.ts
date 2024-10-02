@@ -1,41 +1,44 @@
-import type { Guild } from "@projectdysnomia/dysnomia";
-import type { Client } from "../structures/Client.js";
+import { type APIGuild, GatewayDispatchEvents } from "@discordjs/core";
+import type { MainModule } from "../main.js";
 
-import { Event } from "../structures/events/Event.js";
+import { Event } from "@barry-bot/core";
 
 /**
- * Handles the guildCreate event.
+ * An event that sets up the configuration for a guild when it is created.
  */
-export default class extends Event {
+export default class extends Event<MainModule> {
     /**
-     * Handles the guildCreate event.
-     * @param client The client that initialized the event.
+     * An event that sets up the configuration for a guild when it is created.
+     *
+     * @param module The module the event belongs to. 
      */
-    constructor(client: Client) {
-        super(client, "guildCreate");
+    constructor(module: MainModule) {
+        super(module, GatewayDispatchEvents.GuildCreate);
     }
 
     /**
-     * Handles the guildCreate event.
-     * @param guild The guild the event is for.
+     * Set up the configuration for the guild.
+     *
+     * @param guild The guild that was created.
      */
-    async execute(guild: Guild): Promise<void> {
-        const settings = await this.client.config.getOrCreate(guild.id);
-        if (settings.role_id) {
+    async execute(guild: APIGuild): Promise<void> {
+        const settings = await this.module.settings.getOrCreate(guild.id);
+        if (settings.roleID !== null) {
             return;
         }
 
         try {
-            const role = await guild.createRole({
+            const role = await this.client.api.guilds.createRole(guild.id, {
                 name: "Champion of Halloween",
                 color: 0xFFA400,
                 hoist: true
             });
 
-            settings.role_id = role.id;
-            await this.client.config.save(settings);
-        } catch {
-            // empty
+            await this.module.settings.upsert(guild.id, {
+                roleID: role.id
+            });
+        } catch (error: unknown) {
+            this.client.logger.warn("Failed to create role for guild", error);
         }
     }
 }

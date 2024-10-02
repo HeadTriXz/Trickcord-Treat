@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model InventoryItem {
+  guildID   String   @map("guild_id")
+  itemID    Int      @map("item_id")
+  userID    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([guildID, itemID, userID])
+  @@map("inventory_items")
+}
+
+model GuildSettings {
+  guildID         String   @id @map("guild_id")
+  chance          Int      @default(20)
+  interval        Int      @default(300)
+  timeout         Int      @default(60)
+  roleID          String?  @map("role_id")
+  allowedChannels String[] @default([]) @map("allowed_channels")
+  ignoredChannels String[] @default([]) @map("ignored_channels")
+  ignoredRoles    String[] @default([]) @map("ignored_roles")
+
+  @@map("guild_settings")
+}

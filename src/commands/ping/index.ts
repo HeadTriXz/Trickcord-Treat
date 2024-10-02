@@ -1,20 +1,39 @@
-import type { CommandInteraction } from "@projectdysnomia/dysnomia";
-import type { Client } from "../../structures/Client.js";
+import {
+    type ApplicationCommandInteraction,
+    SlashCommand,
+    getCreatedAt
+} from "@barry-bot/core";
+import type { MainModule } from "../../main.js";
 
-import { SlashCommand } from "../../structures/commands/SlashCommand.js";
 import config from "../../config.js";
 
-export default class extends SlashCommand {
-    constructor(client: Client) {
-        super(client, {
+/**
+ * Represents a slash command that shows the latency.
+ */
+export default class extends SlashCommand<MainModule> {
+    /**
+     * Represents a slash command that shows the latency.
+     *
+     * @param module The module the command belongs to.
+     */
+    constructor(module: MainModule) {
+        super(module, {
             name: "ping",
             description: "Shows the latency of the bot."
         });
     }
 
-    async execute(interaction: CommandInteraction): Promise<void> {
-        const now = Date.now();
+    /**
+     * Execute the "ping" command.
+     *
+     * @param interaction The interaction that triggered the command.
+     */
+    async execute(interaction: ApplicationCommandInteraction): Promise<void> {
         await interaction.defer();
-        await interaction.editOriginalMessage(`${config.emotes.ping} Pong! \`${Date.now() - now}ms\``);
+        const message = await interaction.getOriginalMessage();
+
+        await interaction.editOriginalMessage({
+            content: `${config.emotes.check} Pong! \`${getCreatedAt(message.id) - interaction.createdAt}ms\``
+        });
     }
 }
