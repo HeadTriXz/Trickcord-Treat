@@ -1,18 +1,32 @@
-FROM node:20-alpine
+FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat
+RUN apk update
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Install the dependencies
+FROM base AS installer
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm ci --include=dev
-
-# Copy the rest of the files
+# Build the project
+FROM base AS builder
+COPY --from=installer /app/node_modules ./node_modules
 COPY . .
 
-# Build the app
-RUN npm run build
 RUN npm run db:generate
+RUN npm run build
 
-# Run the app
-CMD ["npm", "start"]
+# Run the project
+FROM base AS runner
+RUN addgroup --system --gid 1001 headtrixz \
+    && adduser --system --uid 1001 headtrixz
+USER headtrixz
+
+COPY --from=builder /app/assets ./assets
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/.env ./.env
+
+CMD ["npm", "run", "start"]
