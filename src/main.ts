@@ -1,10 +1,12 @@
 import {
+    type AnyInteraction,
     type ConstructorArray,
     type Gateway,
     type Module,
-    Client
+    Client,
+    ValidationError
 } from "@barry-bot/core";
-import { type GatewayIntentBits, API } from "@discordjs/core";
+import { type GatewayIntentBits, API, MessageFlags } from "@discordjs/core";
 import { type GuildSettings, PrismaClient } from "@prisma/client";
 import type { BaseLogger } from "@barry-bot/logger";
 import type { CurrentMonster } from "./common.js";
@@ -189,6 +191,18 @@ export class MainModule extends ConfigurableModule<MainModule> implements Module
             }
         });
 
+        this.client.interactions.addMiddleware(async (interaction, next) => {
+            try {
+                await next();
+            } catch (error: unknown) {
+                if (error instanceof ValidationError) {
+                    return this.#handleValidationError(interaction, error);
+                }
+
+                this.client.logger.error(error);
+            }
+        });
+
         setInterval(() => this.#checkExpired(), 1000);
     }
 
@@ -219,6 +233,32 @@ export class MainModule extends ConfigurableModule<MainModule> implements Module
                     color: config.defaultColor
                 }]
             });
+        }
+    }
+
+    /**
+     * Handles the validation error by sending an ephemeral message.
+     *
+     * @param interaction The interaction that triggered the error.
+     * @param error The error that occurred.
+     */
+    async #handleValidationError(interaction: AnyInteraction, error: ValidationError): Promise<void> {
+        const isReplyable = interaction.isApplicationCommand()
+        || interaction.isMessageComponent()
+        || interaction.isModalSubmit();
+
+        if (isReplyable) {
+            return interaction.createMessage({
+                content: `${config.emotes.error} ${error.message}`,
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (interaction.isAutocomplete()) {
+            return interaction.result([{
+                name: error.message,
+                value: "error"
+            }]);
         }
     }
 }
