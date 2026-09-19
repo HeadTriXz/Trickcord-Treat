@@ -1,23 +1,19 @@
 {
     "compilerOptions": {
-        "alwaysStrict": true,
-        "declaration": true,
-        "declarationMap": true,
+        "declaration": false,
         "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "lib": ["ES2022"],
+        "lib": ["ES2023"],
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "newLine": "lf",
+        "noUncheckedIndexedAccess": true,
         "outDir": "dist",
-        "pretty": true,
         "resolveJsonModule": true,
         "rootDir": "src",
         "skipLibCheck": true,
         "strict": true,
-        "target": "ES2022",
+        "target": "ES2023",
         "verbatimModuleSyntax": true
     },
-    "exclude": ["node_modules"],
-	"include": ["src"]
+    "include": ["src"]
 }

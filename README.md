@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://support.discord.com/hc/article_attachments/360096733753/wumpus_header.png"/>
+  <img src="https://github.com/user-attachments/assets/d975b067-82ec-4fb3-9d43-4738e6866499"/>
 </p>
 
 <h3 align="center">Trick'cord Treat</h3>

@@ -1,44 +1,16 @@
-import { type APIGuild, GatewayDispatchEvents } from "@discordjs/core";
-import type { MainModule } from "../main.js";
+import type { Context } from "../context.js";
 
-import { Event } from "@barry-bot/core";
+import { Events } from "discord.js";
 
 /**
- * An event that sets up the configuration for a guild when it is created.
+ * Creates default settings when the bot joins a guild.
+ *
+ * @param ctx The bot context.
  */
-export default class extends Event<MainModule> {
-    /**
-     * An event that sets up the configuration for a guild when it is created.
-     *
-     * @param module The module the event belongs to. 
-     */
-    constructor(module: MainModule) {
-        super(module, GatewayDispatchEvents.GuildCreate);
-    }
-
-    /**
-     * Set up the configuration for the guild.
-     *
-     * @param guild The guild that was created.
-     */
-    async execute(guild: APIGuild): Promise<void> {
-        const settings = await this.module.settings.getOrCreate(guild.id);
-        if (settings.roleID !== null) {
-            return;
-        }
-
-        try {
-            const role = await this.client.api.guilds.createRole(guild.id, {
-                name: "Champion of Halloween",
-                color: 0xFFA400,
-                hoist: true
-            });
-
-            await this.module.settings.upsert(guild.id, {
-                roleID: role.id
-            });
-        } catch (error: unknown) {
-            this.client.logger.warn("Failed to create role for guild", error);
-        }
-    }
+export function register(ctx: Context): void {
+    ctx.client.on(Events.GuildCreate, (guild) => {
+        ctx.repositories.settings.getOrCreate(guild.id)
+            .then(() => ctx.logger.info({ guildID: guild.id }, "Joined guild"))
+            .catch((error: unknown) => ctx.logger.error(error, "Failed to initialise guild"));
+    });
 }

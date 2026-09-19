@@ -1,44 +1,56 @@
-import { Application, MainModule } from "./main.js";
-import { GatewayDispatchEvents, GatewayIntentBits } from "@discordjs/core";
-import { Logger } from "@barry-bot/logger";
+import type { Context } from "./context.js";
 
-// Check environment variables.
-if (process.env.DISCORD_CLIENT_ID === undefined) {
-    throw new Error("Missing environment variable: DISCORD_CLIENT_ID");
+import { Client, GatewayIntentBits, Options } from "discord.js";
+import { createDatabase } from "./database/client.js";
+import { createRepositories } from "./database/repositories/index.js";
+import { effects } from "./core/effects/index.js";
+import { SpawnStore } from "./core/spawner.js";
+import { loadEnv } from "./utils/env.js";
+import { createLogger } from "./utils/logger.js";
+import * as ready from "./events/ready.js";
+import * as guildCreate from "./events/guildCreate.js";
+import * as messageCreate from "./events/messageCreate.js";
+import * as interactionCreate from "./events/interactionCreate.js";
+
+/**
+ * Creates the Discord client with minimal caching.
+ *
+ * @returns The created Discord client.
+ */
+function createClient(): Client {
+    return new Client({
+        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+        makeCache: Options.cacheWithLimits({
+            ...Options.DefaultMakeCacheSettings,
+            MessageManager: 0,
+            ReactionManager: 0,
+            PresenceManager: 0
+        })
+    });
 }
 
-if (process.env.DISCORD_TOKEN === undefined) {
-    throw new Error("Missing environment variable: DISCORD_TOKEN");
+const env = loadEnv();
+const logger = createLogger(env);
+const { db } = createDatabase(env.POSTGRES_URL);
+const client = createClient();
+
+const ctx: Context = {
+    client: client as Context["client"],
+    db: db,
+    repositories: createRepositories(db),
+    effects: effects,
+    spawns: new SpawnStore(),
+    logger: logger
+};
+
+for (const event of [ready, guildCreate, messageCreate, interactionCreate]) {
+    event.register(ctx);
 }
 
-// Initialize the logger.
-const logger = new Logger({
-    environment: process.env.NODE_ENV,
-    sentry: {
-        dsn: process.env.SENTRY_DSN
-    }
-});
-
-// Initialize the application.
-const app = new Application({
-    discord: {
-        applicationID: process.env.DISCORD_CLIENT_ID,
-        intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages,
-        token: process.env.DISCORD_TOKEN
-    },
-    logger: logger,
-    modules: [MainModule]
-});
-
+process.on("unhandledRejection", (error) => logger.error(error, "Unhandled rejection"));
 process.on("uncaughtException", (error) => {
-    logger.fatal(error);
+    logger.fatal(error, "Uncaught exception");
+    process.exit(1);
 });
 
-// Initialize the application.
-app.on(GatewayDispatchEvents.Ready, ({ user }) => {
-    logger.info(`Successfully logged in as ${user.username}#${user.discriminator}`);
-});
-
-app.initialize().catch((error) => {
-    logger.fatal(error);
-});
+await client.login(env.DISCORD_TOKEN);
